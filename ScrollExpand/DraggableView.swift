@@ -91,18 +91,15 @@ class DraggableView: UIView {
     }
     
     func didPan(_ gesture: UIPanGestureRecognizer) {
-        // do not expand on carousel scrolling
-        if gesture.velocity(in: self.superview).x < 200 && !(gesture.velocity(in: self.superview).x <= -200) {
-            let point = gesture.translation(in: self.superview)
-            self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
-            gesture.setTranslation(CGPoint.zero, in: self.superview)
-            if gesture.state == .ended {
-                var velocity = gesture.velocity(in: self.superview)
-                velocity.x = 0
-                delegate?.draggableView(self, draggingEndedWith: velocity)
-            } else if gesture.state == .began {
-                delegate?.draggableViewBeganDragging(self)
-            }
+        let point = gesture.translation(in: self.superview)
+        self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
+        gesture.setTranslation(CGPoint.zero, in: self.superview)
+        if gesture.state == .ended {
+            var velocity = gesture.velocity(in: self.superview)
+            velocity.x = 0
+            delegate?.draggableView(self, draggingEndedWith: velocity)
+        } else if gesture.state == .began {
+            delegate?.draggableViewBeganDragging(self)
         }
 
     }
@@ -191,6 +188,14 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
 extension DraggableView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+            let velocity = pan.velocity(in: self)
+            return fabs(velocity.y) > fabs(velocity.x)
+        }
+        return true
+
     }
 }
 extension DraggableView: UISearchBarDelegate {
