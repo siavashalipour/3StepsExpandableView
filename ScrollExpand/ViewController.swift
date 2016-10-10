@@ -18,7 +18,6 @@ enum PanState {
 class ViewController: UIViewController {
 
     var pane: DraggableView!
-    let roundedViewHeight: CGFloat = 250
     var paneState: PanState = .close
     var animation: POPSpringAnimation!
 
@@ -52,7 +51,7 @@ class ViewController: UIViewController {
     func targetPoint() -> CGPoint {
         switch paneState {
         case .halfOpen:
-            return CGPoint(x: size.width/2, y: size.height  - 320/4.0)
+            return CGPoint(x: size.width/2, y: size.height  * 1.23)
         case .open:
             return CGPoint(x: size.width/2, y: size.height * 0.53)
         case .close:
@@ -86,15 +85,26 @@ extension ViewController: DraggableViewDelegate {
     }
     
     func draggableView(_ view: DraggableView, draggingEndedWith velocity: CGPoint) {
-        paneState = velocity.y >= 0 ? .close : .open
-        paneState = view.center.y > self.view.bounds.height ? .halfOpen : .open
-        if velocity.y > 0 && paneState == .open {
-            view.endEditing(true)
-            paneState = .halfOpen
-        } else if velocity.y > 0 && paneState == .halfOpen {
-            paneState = .close
+        if paneState == .halfOpen {
+            if velocity.y >= 0 {
+                paneState = .close
+            } else {
+                paneState = .open
+            }
+        } else if paneState == .close {
+            if velocity.y >= 0 {
+                paneState = .close
+            } else {
+                paneState = .halfOpen
+            }
+        } else if paneState == .open {
+            if velocity.y >= 0 {
+                paneState = .halfOpen
+            } else {
+                paneState = .open
+            }
         }
-        if paneState == .close {
+        if paneState == .close || paneState == .halfOpen {
             view.endEditing(true)
         }
         animatePaneWithInitialVelocity(velocity)
