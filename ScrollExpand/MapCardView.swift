@@ -15,7 +15,7 @@ final class MapCardView: UIView {
         return Bundle.main.loadNibNamed("MapCardView",owner:self,options:nil)!.first as! MapCardView
     }
     
-    func setupUI(_ withCornerRadius: CGFloat, barcode: String, loyaltyPoints: Float) {
-
+    func setupUI() {
+        layer.cornerRadius = 10
     }
 }

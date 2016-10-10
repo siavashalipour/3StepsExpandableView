@@ -9,40 +9,45 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="MapCardView" customModule="ScrollExpand" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+            <rect key="frame" x="0.0" y="0.0" width="371" height="90"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Q6K-59-d9I">
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <nil key="textColor"/>
-                    <nil key="highlightedColor"/>
-                </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8XP-8F-8DA">
-                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                    <nil key="textColor"/>
-                    <nil key="highlightedColor"/>
-                </label>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="bGp-cl-Dmg">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sanFran" translatesAutoresizingMaskIntoConstraints="NO" id="iOW-1K-4gI">
                     <constraints>
-                        <constraint firstAttribute="width" constant="75" id="sDl-dv-R05"/>
+                        <constraint firstAttribute="width" constant="99" id="CZK-7J-nfl"/>
                     </constraints>
                 </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kQ4-5r-Z83">
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qID-cA-ecX">
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" red="0.74052928969086307" green="0.74052928969086307" blue="0.74052928969086307" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="8XP-8F-8DA" firstAttribute="top" secondItem="Q6K-59-d9I" secondAttribute="bottom" constant="14" id="7JN-BW-MQm"/>
-                <constraint firstItem="8XP-8F-8DA" firstAttribute="leading" secondItem="bGp-cl-Dmg" secondAttribute="trailing" constant="22" id="Qgy-wB-jfp"/>
-                <constraint firstAttribute="bottom" secondItem="8XP-8F-8DA" secondAttribute="bottom" constant="11" id="btS-ZU-S1E"/>
-                <constraint firstAttribute="trailing" secondItem="8XP-8F-8DA" secondAttribute="trailing" constant="11" id="cLT-hh-hv5"/>
-                <constraint firstItem="bGp-cl-Dmg" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="7" id="dEw-il-fFR"/>
-                <constraint firstAttribute="trailing" secondItem="Q6K-59-d9I" secondAttribute="trailing" constant="11" id="qTO-DF-kZN"/>
-                <constraint firstItem="Q6K-59-d9I" firstAttribute="leading" secondItem="bGp-cl-Dmg" secondAttribute="trailing" constant="22" id="tb0-6X-uQn"/>
-                <constraint firstItem="Q6K-59-d9I" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="13" id="uBg-Py-Tmf"/>
-                <constraint firstItem="bGp-cl-Dmg" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="yRH-eY-zgI"/>
-                <constraint firstAttribute="bottom" secondItem="bGp-cl-Dmg" secondAttribute="bottom" constant="7" id="yZV-mv-XHz"/>
+                <constraint firstAttribute="bottom" secondItem="iOW-1K-4gI" secondAttribute="bottom" constant="10" id="3BF-gJ-qJJ"/>
+                <constraint firstAttribute="trailing" secondItem="qID-cA-ecX" secondAttribute="trailing" constant="16" id="T29-Vp-Tgq"/>
+                <constraint firstItem="qID-cA-ecX" firstAttribute="top" secondItem="kQ4-5r-Z83" secondAttribute="bottom" constant="4" id="VrK-tu-aAa"/>
+                <constraint firstItem="iOW-1K-4gI" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="apg-zE-xCR"/>
+                <constraint firstAttribute="bottom" secondItem="qID-cA-ecX" secondAttribute="bottom" constant="34" id="dpx-EE-TE8"/>
+                <constraint firstItem="qID-cA-ecX" firstAttribute="top" secondItem="kQ4-5r-Z83" secondAttribute="bottom" constant="4" id="gfN-JM-q0Q"/>
+                <constraint firstAttribute="trailing" secondItem="kQ4-5r-Z83" secondAttribute="trailing" constant="16" id="hQs-0z-nmw"/>
+                <constraint firstItem="iOW-1K-4gI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="ivm-gl-dFz"/>
+                <constraint firstItem="kQ4-5r-Z83" firstAttribute="leading" secondItem="iOW-1K-4gI" secondAttribute="trailing" constant="20" id="q7K-RZ-mm6"/>
+                <constraint firstItem="kQ4-5r-Z83" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="v4t-lI-Ecj"/>
+                <constraint firstItem="qID-cA-ecX" firstAttribute="leading" secondItem="iOW-1K-4gI" secondAttribute="trailing" constant="20" id="ww3-Q1-53O"/>
             </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="34.5" y="55"/>
+            <point key="canvasLocation" x="-46.5" y="55"/>
         </view>
     </objects>
+    <resources>
+        <image name="sanFran" width="88" height="63"/>
+    </resources>
 </document>

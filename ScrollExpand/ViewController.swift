@@ -9,6 +9,7 @@
 import UIKit
 import pop
 import MapKit
+import SnapKit
 
 enum PanState {
     case halfOpen
@@ -29,16 +30,15 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-       
-
         let draggableView = DraggableView(frame:CGRect(x: 0, y: size.height - 70, width: size.width, height: size.height))
         draggableView.delegate = self
         view.addSubview(draggableView)
         pane = draggableView
+        
         let panRecogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
         view.addGestureRecognizer(panRecogniser)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillShow.rawValue), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillShow.rawValue), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
         
     }
@@ -72,7 +72,7 @@ class ViewController: UIViewController {
         animation?.velocity = NSValue.init(cgPoint: initialVelocity)
         animation?.toValue = NSValue.init(cgPoint: targetPoint())
         animation?.springSpeed = 8
-        animation?.springBounciness = 10
+        animation?.springBounciness = 4
         pane.pop_add(animation, forKey: "animation")
         
     }
@@ -107,10 +107,11 @@ extension ViewController: DraggableViewDelegate {
     }
     
     func draggableViewSearchBarTapped(_ view: DraggableView) {
-
+        // handled in KeyboardWillShow
     }
+    
     func draggableViewSearchBarCancelled(_ view: DraggableView) {
-
+        // handled in KeyboardWillHide
     }
     
     func keyboardWillShow(_ notification: Notification) {
@@ -130,19 +131,5 @@ extension ViewController: DraggableViewDelegate {
         animatePaneWithInitialVelocity(initialVelocity)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

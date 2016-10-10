@@ -6,5 +6,5 @@ target 'ScrollExpand' do
   use_frameworks!
 
   pod 'pop'
-
+  pod 'SnapKit'
 end

@@ -9,6 +9,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>SnapKit.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>pop.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -17,12 +22,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>5A0F27C5D933FB707C8F11073342A466</key>
+		<key>3048926ED93F4D04CD579D358F8BCBD1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>BE97EFD11B6FBAD7BF98797AA7B97679</key>
+		<key>7446CD5A772ED5218933946C1E8E3951</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B8D64A497B2E74D1E4298CE83CA44BFA</key>
 		<dict>
 			<key>primary</key>
 			<true/>

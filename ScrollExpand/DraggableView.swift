@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SnapKit
 
 protocol DraggableViewDelegate {
     func draggableView(_ view: DraggableView, draggingEndedWith velocity: CGPoint)
@@ -65,29 +66,45 @@ class DraggableView: UIView {
         alpha = 0.9
         self.layer.cornerRadius = 10
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
-        
+        // add carousel
+        addCarouselHolder()
         // add tableView
-        let fr = frame
-        cardCarousel.type = .coverFlow
-        tableView = UITableView(frame: CGRect(x: fr.origin.x, y: h + 16 + 90, width: fr.size.width, height: fr.size.height), style: .plain)
+        tableView = UITableView(frame: CGRect(x: frame.origin.x, y: h + 32 + 90, width: frame.size.width, height: frame.size.height), style: .plain)
         tableView.backgroundColor = UIColor.clear
         tableView.dataSource = self
         tableView.delegate = self
         addSubview(tableView)
     }
     
-    func didPan(_ gesture: UIPanGestureRecognizer) {
-        let point = gesture.translation(in: self.superview)
-        self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
-        
-        gesture.setTranslation(CGPoint.zero, in: self.superview)
-        if gesture.state == .ended {
-            var velocity = gesture.velocity(in: self.superview)
-            velocity.x = 0
-            delegate?.draggableView(self, draggingEndedWith: velocity)
-        } else if gesture.state == .began {
-            delegate?.draggableViewBeganDragging(self)
+    func addCarouselHolder() {
+        cardCarousel.type = .linear
+        let h: CGFloat = 90
+        cardCarousel.dataSource = self
+        cardCarousel.delegate = self
+        addSubview(cardCarousel)
+        cardCarousel.snp.remakeConstraints { (make) in
+            make.left.equalTo(self)
+            make.right.equalTo(self)
+            make.top.equalTo(searchBar.snp.bottom).offset(8)
+            make.height.equalTo(h)
         }
+    }
+    
+    func didPan(_ gesture: UIPanGestureRecognizer) {
+        // do not expand on carousel scrolling
+        if gesture.velocity(in: self.superview).x < 200 && !(gesture.velocity(in: self.superview).x <= -200) {
+            let point = gesture.translation(in: self.superview)
+            self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
+            gesture.setTranslation(CGPoint.zero, in: self.superview)
+            if gesture.state == .ended {
+                var velocity = gesture.velocity(in: self.superview)
+                velocity.x = 0
+                delegate?.draggableView(self, draggingEndedWith: velocity)
+            } else if gesture.state == .began {
+                delegate?.draggableViewBeganDragging(self)
+            }
+        }
+
     }
     
     func keyboardWillHide(_ notification: Notification) {
@@ -96,7 +113,7 @@ class DraggableView: UIView {
 }
 extension DraggableView: iCarouselDataSource, iCarouselDelegate {
     func numberOfItems(in carousel: iCarousel) -> Int {
-        return 5
+        return 15
     }
     
     func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
@@ -109,18 +126,18 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
             //this `if (view == nil) {...}` statement because the view will be
             //recycled and used with other index values later
             let maxWidth = bounds.size.width-44
-            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth, height:160))
+            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth-44, height:90))
             
             innerCardHolderView = MapCardView.instanceFromNib()
             innerCardHolderView.tag = 1
             itemView.addSubview(innerCardHolderView)
-            //            innerCardHolderView.snp.makeConstraints { (make) in
-            //                make.edges.equalTo(itemView)
-            //            }
+            innerCardHolderView.snp.makeConstraints { (make) in
+                make.edges.equalTo(itemView)
+            }
         } else {
             //get a reference to the label in the recycled view
             itemView = view!
-            innerCardHolderView = itemView.viewWithTag(1) as! MapCardView!
+            innerCardHolderView = itemView.viewWithTag(1) as! MapCardView
         }
         
         //set item label
@@ -128,9 +145,10 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
         //views outside of the `if (view == nil) {...}` check otherwise
         //you'll get weird issues with carousel item content appearing
         //in the wrong place in the carousel
+        
         //let anItem = items[index]
         //innerCardHolderView.setupUI(anItem.cornerRadius, barcode: anItem.barcode, loyaltyPoints: anItem.loyaltyPoints)
-        itemView.backgroundColor = #colorLiteral(red: 0.9368572831, green: 0.134930104, blue: 0, alpha: 1)
+        innerCardHolderView.setupUI()
         return itemView
     }
     
