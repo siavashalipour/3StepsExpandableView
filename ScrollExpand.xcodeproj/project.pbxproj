@@ -15,6 +15,9 @@
 		F03959321DAAED15007F8EAD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F03959301DAAED15007F8EAD /* LaunchScreen.storyboard */; };
 		F0FA7DC11DAB05A900070AAC /* DraggableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA7DC01DAB05A900070AAC /* DraggableView.swift */; };
 		F0FA7DC31DAB304500070AAC /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0FA7DC21DAB304500070AAC /* MapKit.framework */; };
+		F0FA7DC91DAB5C3100070AAC /* iCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = F0FA7DC81DAB5C3100070AAC /* iCarousel.m */; };
+		F0FA7DCC1DAB5F4100070AAC /* MapCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA7DCB1DAB5F4100070AAC /* MapCardView.swift */; };
+		F0FA7DCE1DAB5F5C00070AAC /* MapCardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = F0FA7DCD1DAB5F5C00070AAC /* MapCardView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,11 @@
 		F03959331DAAED15007F8EAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F0FA7DC01DAB05A900070AAC /* DraggableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DraggableView.swift; sourceTree = "<group>"; };
 		F0FA7DC21DAB304500070AAC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		F0FA7DC61DAB5C3000070AAC /* ScrollExpand-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ScrollExpand-Bridging-Header.h"; sourceTree = "<group>"; };
+		F0FA7DC71DAB5C3100070AAC /* iCarousel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCarousel.h; sourceTree = "<group>"; };
+		F0FA7DC81DAB5C3100070AAC /* iCarousel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCarousel.m; sourceTree = "<group>"; };
+		F0FA7DCB1DAB5F4100070AAC /* MapCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapCardView.swift; sourceTree = "<group>"; };
+		F0FA7DCD1DAB5F5C00070AAC /* MapCardView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MapCardView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,10 +65,12 @@
 		F039591B1DAAED15007F8EAD = {
 			isa = PBXGroup;
 			children = (
+				F0FA7DCA1DAB5C4300070AAC /* iCarousel */,
 				F03959261DAAED15007F8EAD /* ScrollExpand */,
 				F03959251DAAED15007F8EAD /* Products */,
 				FE7CD39F38716D4C9876B7E4 /* Pods */,
 				D17C3AEAA99AE60D2C614B53 /* Frameworks */,
+				F0FA7DC61DAB5C3000070AAC /* ScrollExpand-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -78,12 +88,23 @@
 				F03959271DAAED15007F8EAD /* AppDelegate.swift */,
 				F03959291DAAED15007F8EAD /* ViewController.swift */,
 				F0FA7DC01DAB05A900070AAC /* DraggableView.swift */,
+				F0FA7DCB1DAB5F4100070AAC /* MapCardView.swift */,
+				F0FA7DCD1DAB5F5C00070AAC /* MapCardView.xib */,
 				F039592B1DAAED15007F8EAD /* Main.storyboard */,
 				F039592E1DAAED15007F8EAD /* Assets.xcassets */,
 				F03959301DAAED15007F8EAD /* LaunchScreen.storyboard */,
 				F03959331DAAED15007F8EAD /* Info.plist */,
 			);
 			path = ScrollExpand;
+			sourceTree = "<group>";
+		};
+		F0FA7DCA1DAB5C4300070AAC /* iCarousel */ = {
+			isa = PBXGroup;
+			children = (
+				F0FA7DC71DAB5C3100070AAC /* iCarousel.h */,
+				F0FA7DC81DAB5C3100070AAC /* iCarousel.m */,
+			);
+			name = iCarousel;
 			sourceTree = "<group>";
 		};
 		FE7CD39F38716D4C9876B7E4 /* Pods */ = {
@@ -131,6 +152,7 @@
 					F03959231DAAED15007F8EAD = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 33GWFDB497;
+						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -161,6 +183,7 @@
 				F03959321DAAED15007F8EAD /* LaunchScreen.storyboard in Resources */,
 				F039592F1DAAED15007F8EAD /* Assets.xcassets in Resources */,
 				F039592D1DAAED15007F8EAD /* Main.storyboard in Resources */,
+				F0FA7DCE1DAB5F5C00070AAC /* MapCardView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,8 +243,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0FA7DC11DAB05A900070AAC /* DraggableView.swift in Sources */,
+				F0FA7DC91DAB5C3100070AAC /* iCarousel.m in Sources */,
 				F039592A1DAAED15007F8EAD /* ViewController.swift in Sources */,
 				F03959281DAAED15007F8EAD /* AppDelegate.swift in Sources */,
+				F0FA7DCC1DAB5F4100070AAC /* MapCardView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,11 +370,14 @@
 			baseConfigurationReference = 762E93E445FFE42797FA1097 /* Pods-ScrollExpand.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 33GWFDB497;
 				INFOPLIST_FILE = ScrollExpand/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.sa.ScrollExpand;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ScrollExpand-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -359,11 +387,13 @@
 			baseConfigurationReference = 27DE55512350A6D8B838B9D0 /* Pods-ScrollExpand.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 33GWFDB497;
 				INFOPLIST_FILE = ScrollExpand/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = au.com.sa.ScrollExpand;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "ScrollExpand-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

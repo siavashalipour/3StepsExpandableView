@@ -21,6 +21,9 @@ class DraggableView: UIView {
     var delegate: DraggableViewDelegate?
     var searchBar: UISearchBar!
     var tableView: UITableView!
+    var cardCarousel: iCarousel! = iCarousel()
+    let carouselHeight: CGFloat = 90
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,8 +68,8 @@ class DraggableView: UIView {
         
         // add tableView
         let fr = frame
-        
-        tableView = UITableView(frame: CGRect(x: fr.origin.x, y: h + 16, width: fr.size.width, height: fr.size.height), style: .plain)
+        cardCarousel.type = .coverFlow
+        tableView = UITableView(frame: CGRect(x: fr.origin.x, y: h + 16 + 90, width: fr.size.width, height: fr.size.height), style: .plain)
         tableView.backgroundColor = UIColor.clear
         tableView.dataSource = self
         tableView.delegate = self
@@ -76,7 +79,7 @@ class DraggableView: UIView {
     func didPan(_ gesture: UIPanGestureRecognizer) {
         let point = gesture.translation(in: self.superview)
         self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
-
+        
         gesture.setTranslation(CGPoint.zero, in: self.superview)
         if gesture.state == .ended {
             var velocity = gesture.velocity(in: self.superview)
@@ -91,6 +94,61 @@ class DraggableView: UIView {
         searchBar.setShowsCancelButton(false, animated: true)
     }
 }
+extension DraggableView: iCarouselDataSource, iCarouselDelegate {
+    func numberOfItems(in carousel: iCarousel) -> Int {
+        return 5
+    }
+    
+    func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
+        var itemView: UIView
+        var innerCardHolderView: MapCardView
+        
+        //create new view if no view is available for recycling
+        if (view == nil) {
+            //don't do anything specific to the index within
+            //this `if (view == nil) {...}` statement because the view will be
+            //recycled and used with other index values later
+            let maxWidth = bounds.size.width-44
+            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth, height:160))
+            
+            innerCardHolderView = MapCardView.instanceFromNib()
+            innerCardHolderView.tag = 1
+            itemView.addSubview(innerCardHolderView)
+            //            innerCardHolderView.snp.makeConstraints { (make) in
+            //                make.edges.equalTo(itemView)
+            //            }
+        } else {
+            //get a reference to the label in the recycled view
+            itemView = view!
+            innerCardHolderView = itemView.viewWithTag(1) as! MapCardView!
+        }
+        
+        //set item label
+        //remember to always set any properties of your carousel item
+        //views outside of the `if (view == nil) {...}` check otherwise
+        //you'll get weird issues with carousel item content appearing
+        //in the wrong place in the carousel
+        //let anItem = items[index]
+        //innerCardHolderView.setupUI(anItem.cornerRadius, barcode: anItem.barcode, loyaltyPoints: anItem.loyaltyPoints)
+        itemView.backgroundColor = #colorLiteral(red: 0.9368572831, green: 0.134930104, blue: 0, alpha: 1)
+        return itemView
+    }
+    
+    func carousel(_ carousel: iCarousel, valueFor option: iCarouselOption, withDefault value: CGFloat) -> CGFloat {
+        if (option == .spacing) {
+            return value * 1.1
+        }
+        return value
+    }
+    
+    func carousel(_ carousel: iCarousel, didSelectItemAt index: Int) {
+        //        let anItem = items[index]
+        //        let aCard = LoyaltyCardView.instanceFromNib()
+        //        aCard.setupUI(anItem.cornerRadius, barcode: anItem.barcode, loyaltyPoints: anItem.loyaltyPoints)
+        //        selectedloyaltyCard = aCard
+        //        performSegue(withIdentifier: editCardSegue, sender: self)
+    }
+}
 extension DraggableView: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -98,6 +156,7 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 5
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: "Cell")
         if (cell == nil) {
@@ -105,8 +164,10 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
         }
         cell?.backgroundColor = UIColor.clear
         cell?.contentView.backgroundColor = UIColor.clear
-        cell?.textLabel?.text = "\(indexPath.row). Title"
+        cell?.textLabel?.text = "\(indexPath.row).\(indexPath.section) Title"
         return cell!
+        
+        
     }
 }
 extension DraggableView: UIGestureRecognizerDelegate {

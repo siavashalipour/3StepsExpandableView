@@ -53,7 +53,7 @@ class ViewController: UIViewController {
         case .halfOpen:
             return CGPoint(x: size.width/2, y: size.height  * 1.23)
         case .open:
-            return CGPoint(x: size.width/2, y: size.height * 0.53)
+            return CGPoint(x: size.width/2, y: size.height * 0.56)
         case .close:
             return CGPoint(x: size.width/2, y: size.height * 1.40)
 
@@ -72,7 +72,7 @@ class ViewController: UIViewController {
         animation?.velocity = NSValue.init(cgPoint: initialVelocity)
         animation?.toValue = NSValue.init(cgPoint: targetPoint())
         animation?.springSpeed = 8
-        animation?.springBounciness = 2
+        animation?.springBounciness = 10
         pane.pop_add(animation, forKey: "animation")
         
     }
