@@ -19,7 +19,7 @@ class ViewController: UIViewController {
 
     var pane: DraggableView!
     var paneState: PanState = .close
-    var animation: POPSpringAnimation!
+    var animation: POPSpringAnimation?
 
     var keyboardHeight: CGFloat = 0
     let size = UIScreen.main.bounds.size
@@ -61,18 +61,18 @@ class ViewController: UIViewController {
     }
     
     func didPan(_ gesture: UIPanGestureRecognizer) {
-        paneState = paneState == .open ? .close : .open
-        let vel = animation.velocity as! CGPoint
-        animatePaneWithInitialVelocity(vel)
+        if let vel = animation?.velocity as? CGPoint {
+            animatePaneWithInitialVelocity(vel)
+        }
     }
     
     func animatePaneWithInitialVelocity(_ initialVelocity: CGPoint) {
         pane.pop_removeAllAnimations()
         animation = POPSpringAnimation(propertyNamed: kPOPViewCenter)
-        animation.velocity = NSValue.init(cgPoint: initialVelocity)
-        animation.toValue = NSValue.init(cgPoint: targetPoint())
-        animation.springSpeed = 8
-        animation.springBounciness = 2
+        animation?.velocity = NSValue.init(cgPoint: initialVelocity)
+        animation?.toValue = NSValue.init(cgPoint: targetPoint())
+        animation?.springSpeed = 8
+        animation?.springBounciness = 2
         pane.pop_add(animation, forKey: "animation")
         
     }
@@ -92,16 +92,12 @@ extension ViewController: DraggableViewDelegate {
                 paneState = .open
             }
         } else if paneState == .close {
-            if velocity.y >= 0 {
-                paneState = .close
-            } else {
-                paneState = .halfOpen
+            if velocity.y < 0 {
+               paneState = .halfOpen
             }
         } else if paneState == .open {
             if velocity.y >= 0 {
                 paneState = .halfOpen
-            } else {
-                paneState = .open
             }
         }
         if paneState == .close || paneState == .halfOpen {

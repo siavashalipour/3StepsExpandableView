@@ -20,6 +20,7 @@ class DraggableView: UIView {
     
     var delegate: DraggableViewDelegate?
     var searchBar: UISearchBar!
+    var tableView: UITableView!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -31,11 +32,13 @@ class DraggableView: UIView {
     }
     
     func setup() {
+        // add top guid veiw
         let topGuidView = UIView(frame: CGRect(x: bounds.size.width/2.0 - 20, y: 3, width: 40, height: 5))
         topGuidView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         topGuidView.layer.cornerRadius = 2.5
         addSubview(topGuidView)
         
+        // add searchBar
         let h: CGFloat = 44
         let w: CGFloat = bounds.size.width - 16
         searchBar = UISearchBar(frame: CGRect(x: 8, y: 8, width: w, height: h))
@@ -51,13 +54,23 @@ class DraggableView: UIView {
                 }
             }
         }
+        // add gesture recogniser
         let recogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
-
+        recogniser.delegate = self
         addGestureRecognizer(recogniser)
         backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         alpha = 0.9
         self.layer.cornerRadius = 10
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
+        
+        // add tableView
+        let fr = frame
+        
+        tableView = UITableView(frame: CGRect(x: fr.origin.x, y: h + 16, width: fr.size.width, height: fr.size.height), style: .plain)
+        tableView.backgroundColor = UIColor.clear
+        tableView.dataSource = self
+        tableView.delegate = self
+        addSubview(tableView)
     }
     
     func didPan(_ gesture: UIPanGestureRecognizer) {
@@ -78,7 +91,29 @@ class DraggableView: UIView {
         searchBar.setShowsCancelButton(false, animated: true)
     }
 }
-
+extension DraggableView: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        var cell = tableView.dequeueReusableCell(withIdentifier: "Cell")
+        if (cell == nil) {
+            cell  = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+        }
+        cell?.backgroundColor = UIColor.clear
+        cell?.contentView.backgroundColor = UIColor.clear
+        cell?.textLabel?.text = "\(indexPath.row). Title"
+        return cell!
+    }
+}
+extension DraggableView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
 extension DraggableView: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(true, animated: true)
