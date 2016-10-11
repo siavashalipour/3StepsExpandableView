@@ -16,18 +16,29 @@ protocol DraggableViewDelegate {
     func draggableViewSearchBarCancelled(_ view: DraggableView)
 }
 
+struct MapStore {
+    let storeTitle: String
+    let storeSubtitle: String
+}
 
 class DraggableView: UIView {
     
     var delegate: DraggableViewDelegate?
-    var searchBar: UISearchBar!
-    var tableView: UITableView!
-    var cardCarousel: iCarousel! = iCarousel()
-    let carouselHeight: CGFloat = 90
-    let topGuideHeight: CGFloat = 5
-    let topGuideWidth: CGFloat = 40
-    let searchBarHeight: CGFloat = 44
-    let defaultPadding: CGFloat = 8
+    var carouselDataSource: Array<MapStore>? {
+        didSet {
+            addCarouselHolder()
+            updateTableViewConstraint()
+        }
+    }
+    
+    fileprivate var searchBar: UISearchBar!
+    fileprivate var tableView: UITableView!
+    fileprivate var cardCarousel: iCarousel?
+    fileprivate let carouselHeight: CGFloat = 90
+    fileprivate let topGuideHeight: CGFloat = 5
+    fileprivate let topGuideWidth: CGFloat = 40
+    fileprivate let searchBarHeight: CGFloat = 44
+    fileprivate let defaultPadding: CGFloat = 8
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -38,7 +49,8 @@ class DraggableView: UIView {
         super.init(coder: aDecoder)
     }
     
-    func setup() {
+    // MARK: Private methods
+    fileprivate func setup() {
         // add top guid veiw
         addTopGuide()
         
@@ -53,45 +65,58 @@ class DraggableView: UIView {
         alpha = 0.9
         self.layer.cornerRadius = 10
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
-        // add carousel
-        addCarouselHolder()
+
         // add tableView
         tableView = UITableView()
-        
         tableView.backgroundColor = UIColor.clear
         tableView.dataSource = self
         tableView.delegate = self
         addSubview(tableView)
+        updateTableViewConstraint()
+    }
+    
+    fileprivate func addCarouselHolder() {
+        if cardCarousel == nil {
+            cardCarousel = iCarousel()
+            cardCarousel?.type = .linear
+            cardCarousel?.isPagingEnabled = true
+            cardCarousel?.dataSource = self
+            cardCarousel?.delegate = self
+            addSubview(cardCarousel!)
+            cardCarousel?.snp.remakeConstraints { (make) in
+                make.left.equalTo(self)
+                make.right.equalTo(self)
+                make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+                make.height.equalTo(carouselHeight)
+            }
+        }
+    }
+    
+    fileprivate func updateTableViewConstraint() {
         tableView.snp.remakeConstraints { (make) in
-            make.top.equalTo(cardCarousel.snp.bottom).offset(defaultPadding)
+            if let safeCarousel = cardCarousel {
+                if safeCarousel.isHidden {
+                    make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+                } else {
+                    make.top.equalTo(safeCarousel.snp.bottom).offset(defaultPadding)
+                }
+            } else {
+                make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+            }
             make.left.equalTo(self)
             make.right.equalTo(self)
             make.bottom.equalTo(self)
         }
     }
     
-    func addCarouselHolder() {
-        cardCarousel.type = .linear
-        cardCarousel.isPagingEnabled = true
-        cardCarousel.dataSource = self
-        cardCarousel.delegate = self
-        addSubview(cardCarousel)
-        cardCarousel.snp.remakeConstraints { (make) in
-            make.left.equalTo(self)
-            make.right.equalTo(self)
-            make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
-            make.height.equalTo(carouselHeight)
-        }
-    }
-    
-    func addTopGuide() {
+    fileprivate func addTopGuide() {
         let topGuidView = UIView(frame: CGRect(x: bounds.size.width/2.0 - topGuideWidth/2, y: 3, width: topGuideWidth, height: topGuideHeight))
         topGuidView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         topGuidView.layer.cornerRadius = 2.5
         addSubview(topGuidView)
     }
     
-    func addSearchBar() {
+    fileprivate func addSearchBar() {
         let w: CGFloat = bounds.size.width - 2*defaultPadding
         searchBar = UISearchBar(frame: CGRect(x: defaultPadding, y: defaultPadding, width: w, height: searchBarHeight))
         searchBar.delegate = self
@@ -113,7 +138,7 @@ class DraggableView: UIView {
             }
         }
     }
-    
+    // MARK: Gesture
     func didPan(_ gesture: UIPanGestureRecognizer) {
         let point = gesture.translation(in: self.superview)
         self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
@@ -127,36 +152,26 @@ class DraggableView: UIView {
         }
         
     }
-    
+    // MARK: Notification
     func keyboardWillHide(_ notification: Notification) {
         searchBar.setShowsCancelButton(false, animated: true)
     }
-    
+    // MARK: Public helper
     func hideCarousel() {
-        cardCarousel.isHidden = true
-        tableView.snp.remakeConstraints { (make) in
-            make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
-            make.left.equalTo(self)
-            make.right.equalTo(self)
-            make.bottom.equalTo(self)
-        }
+        cardCarousel?.isHidden = true
+        updateTableViewConstraint()
         
     }
     
     func unhideCarousel() {
-        cardCarousel.isHidden = false
-        tableView.snp.remakeConstraints { (make) in
-            make.top.equalTo(cardCarousel.snp.bottom).offset(defaultPadding)
-            make.left.equalTo(self)
-            make.right.equalTo(self)
-            make.bottom.equalTo(self)
-        }
+        cardCarousel?.isHidden = false
+        updateTableViewConstraint()
         
     }
 }
 extension DraggableView: iCarouselDataSource, iCarouselDelegate {
     func numberOfItems(in carousel: iCarousel) -> Int {
-        return 15
+        return carouselDataSource?.count ?? 0
     }
     
     func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
@@ -172,8 +187,8 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
             //don't do anything specific to the index within
             //this `if (view == nil) {...}` statement because the view will be
             //recycled and used with other index values later
-            let maxWidth = bounds.size.width-44
-            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth-44, height:carouselHeight))
+            let maxWidth = bounds.size.width - 44
+            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth - 44, height:carouselHeight))
             
             innerCardHolderView = MapCardView.instanceFromNib()
             innerCardHolderView.tag = 1
@@ -188,8 +203,8 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
         //views outside of the `if (view == nil) {...}` check otherwise
         //you'll get weird issues with carousel item content appearing
         //in the wrong place in the carousel
-        
-        innerCardHolderView.setupUI()
+        let aStore = carouselDataSource?[index]
+        innerCardHolderView.setupWithStore(aStore!) // we should crash if we are here and we don't have a Store! :)
         return itemView
     }
     
@@ -209,9 +224,10 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "Cell")
+        let identifier = "Cell"
+        var cell = tableView.dequeueReusableCell(withIdentifier: identifier)
         if (cell == nil) {
-            cell  = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
+            cell  = UITableViewCell(style: .subtitle, reuseIdentifier: identifier)
         }
         cell?.backgroundColor = UIColor.clear
         cell?.contentView.backgroundColor = UIColor.clear

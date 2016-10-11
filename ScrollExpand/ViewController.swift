@@ -41,7 +41,12 @@ class ViewController: UIViewController {
         draggableView.delegate = self
         view.addSubview(draggableView)
         pane = draggableView
-        
+        var stores: Array<MapStore> = []
+        for i in 0..<10 {
+            let store = MapStore(storeTitle: "Title \(i)", storeSubtitle: "Subtitle \(i)")
+            stores.append(store)
+        }
+        pane.carouselDataSource = stores
         let panRecogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
         view.addGestureRecognizer(panRecogniser)
         
