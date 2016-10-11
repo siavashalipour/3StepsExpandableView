@@ -33,6 +33,7 @@ class DraggableView: UIView {
     }
     var tableViewDataSource: Array<MapStore>? {
         didSet {
+            filteredTableViewDataSource = tableViewDataSource
             addTableView()
         }
     }
@@ -46,6 +47,8 @@ class DraggableView: UIView {
     fileprivate let topGuideWidth: CGFloat = 40
     fileprivate let searchBarHeight: CGFloat = 44
     fileprivate let defaultPadding: CGFloat = 8
+    fileprivate var filteredTableViewDataSource: Array<MapStore>?
+    fileprivate let tableViewBottomPadding: CGFloat = 40
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -64,6 +67,7 @@ class DraggableView: UIView {
         alpha = 0.9
         self.layer.cornerRadius = radius
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardDidShow(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardDidShow.rawValue), object: nil)
     }
     
     fileprivate func addCarouselHolder() {
@@ -96,7 +100,7 @@ class DraggableView: UIView {
             }
             make.left.equalTo(self)
             make.right.equalTo(self)
-            make.bottom.equalTo(self)
+            make.bottom.equalTo(self).offset(-tableViewBottomPadding)
         }
     }
     
@@ -141,6 +145,14 @@ class DraggableView: UIView {
         addSubview(tableView!)
         updateTableViewConstraint()
     }
+    
+    fileprivate func filterTableViewDataSourceForSearchText(_ searchText: String) {
+        filteredTableViewDataSource = filteredTableViewDataSource?.filter({
+            $0.storeTitle.contains(searchText)
+        })
+        tableView?.reloadData()
+    }
+    
     // MARK: Gesture Action
     func didPan(_ gesture: UIPanGestureRecognizer) {
         let point = gesture.translation(in: self.superview)
@@ -158,6 +170,16 @@ class DraggableView: UIView {
     // MARK: Notification
     func keyboardWillHide(_ notification: Notification) {
         searchBar?.setShowsCancelButton(false, animated: true)
+        updateTableViewConstraint()
+    }
+    
+    func keyboardDidShow(_ notification: Notification) {
+        // change the bottom constraint of the tableView
+        tableView?.snp.updateConstraints({ (make) in
+            let offset = -(getKeyboardHeighForKeyboardNotification(notification) + tableViewBottomPadding)
+            make.bottom.equalTo(self).offset(offset)
+        })
+
     }
     // MARK: Public helper
     func hideCarousel() {
@@ -172,7 +194,7 @@ class DraggableView: UIView {
         
     }
     
-    func setupForMapWithViewConrerRadius(_ radius: CGFloat) {
+    func setupForMapWithViewCornerRadius(_ radius: CGFloat) {
         // add top guid veiw
         addTopGuide()
         // add searchBar
@@ -181,7 +203,7 @@ class DraggableView: UIView {
         defaultSetupWithViewCornerRadius(radius)
     }
     
-    func setupForCardWithViewConrerRadius(_ radius: CGFloat) {
+    func setupForCardWithViewCornerRadius(_ radius: CGFloat) {
         // add top guid veiw
         addTopGuide()
         // add gesture recogniser
@@ -208,7 +230,7 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
             //this `if (view == nil) {...}` statement because the view will be
             //recycled and used with other index values later
             let maxWidth = bounds.size.width - 44
-            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth - 44, height:carouselHeight))
+            itemView = UIView(frame:CGRect(x: 0, y: 0, width: maxWidth - 44, height: carouselHeight))
             
             innerCardHolderView = MapCardView.instanceFromNib()
             innerCardHolderView.tag = 1
@@ -241,7 +263,7 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tableViewDataSource?.count ?? 0
+        return filteredTableViewDataSource?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -252,17 +274,27 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
         }
         cell?.backgroundColor = UIColor.clear
         cell?.contentView.backgroundColor = UIColor.clear
-        if let store = tableViewDataSource?[indexPath.row] {
+        if let store = filteredTableViewDataSource?[indexPath.row] {
             cell?.textLabel?.text = "\(store.storeTitle)"
             cell?.detailTextLabel?.text = "\(store.storeSubtitle)"
         }
         return cell!
     }
 }
+// MARK: UIScrollViewDelegate
+extension DraggableView: UIScrollViewDelegate {
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // only drop the view if the tableView/scrollView is on top
+        if scrollView.contentOffset.y <= 0 {
+            didPan(scrollView.panGestureRecognizer)
+        }
+    }
+}
 // MARK: UIGestureRecognizerDelegate
 extension DraggableView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
+        return false
     }
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         if let pan = gestureRecognizer as? UIPanGestureRecognizer {
@@ -283,5 +315,11 @@ extension DraggableView: UISearchBarDelegate {
         endEditing(true)
         delegate?.draggableViewSearchBarCancelled(self)
         searchBar.setShowsCancelButton(false, animated: true)
+        // reset tableViewDataSource
+        filteredTableViewDataSource = tableViewDataSource
+        tableView?.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filterTableViewDataSourceForSearchText(searchText)
     }
 }

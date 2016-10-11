@@ -37,13 +37,13 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        let draggableView = DraggableView(frame:CGRect(x: 0, y: size.height - 70, width: size.width, height: size.height))
+        let draggableView = DraggableView(frame:CGRect(x: 0, y: size.height - 60, width: size.width, height: size.height))
         draggableView.delegate = self
-        draggableView.setupForMapWithViewConrerRadius(10)
+        draggableView.setupForMapWithViewCornerRadius(10)
         view.addSubview(draggableView)
         pane = draggableView
         var stores: Array<MapStore> = []
-        for i in 0..<10 {
+        for i in 0..<20 {
             let store = MapStore(storeTitle: "Title \(i)", storeSubtitle: "Subtitle \(i)")
             stores.append(store)
         }
@@ -71,7 +71,7 @@ class ViewController: UIViewController {
             return CGPoint(x: size.width/2, y: size.height * 0.56)
         case .close:
             pane.unhideCarousel()
-            return CGPoint(x: size.width/2, y: size.height * 1.40)
+            return CGPoint(x: size.width/2, y: size.height * 1.42)
             
         }
     }
@@ -101,6 +101,7 @@ extension ViewController: DraggableViewDelegate {
     }
     
     func draggableView(_ view: DraggableView, draggingEndedWith velocity: CGPoint) {
+        // toggle paneState
         if paneState == .halfOpen {
             if velocity.y >= 0 {
                 paneState = .close
@@ -131,10 +132,7 @@ extension ViewController: DraggableViewDelegate {
     }
     
     func keyboardWillShow(_ notification: Notification) {
-        let keyboardInfo = (notification as NSNotification).userInfo
-        let keyboardFrameBegin = keyboardInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-        let keyboardFrameBeginRect = keyboardFrameBegin.cgRectValue
-        keyboardHeight = keyboardFrameBeginRect.height
+        keyboardHeight = view.getKeyboardHeighForKeyboardNotification(notification)
         let initialVelocity = CGPoint(x: 0.0, y: -bigY)
         paneState = .open
         animatePaneWithInitialVelocity(initialVelocity)
