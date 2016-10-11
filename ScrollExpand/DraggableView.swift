@@ -23,6 +23,7 @@ struct MapStore {
 
 class DraggableView: UIView {
     
+    // MARK: Public properties
     var delegate: DraggableViewDelegate?
     var carouselDataSource: Array<MapStore>? {
         didSet {
@@ -30,9 +31,15 @@ class DraggableView: UIView {
             updateTableViewConstraint()
         }
     }
+    var tableViewDataSource: Array<MapStore>? {
+        didSet {
+            addTableView()
+        }
+    }
     
-    fileprivate var searchBar: UISearchBar!
-    fileprivate var tableView: UITableView!
+    // MARK: Private properties
+    fileprivate var searchBar: UISearchBar?
+    fileprivate var tableView: UITableView?
     fileprivate var cardCarousel: iCarousel?
     fileprivate let carouselHeight: CGFloat = 90
     fileprivate let topGuideHeight: CGFloat = 5
@@ -42,7 +49,6 @@ class DraggableView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -50,29 +56,14 @@ class DraggableView: UIView {
     }
     
     // MARK: Private methods
-    fileprivate func setup() {
-        // add top guid veiw
-        addTopGuide()
-        
-        // add searchBar
-        addSearchBar()
-        
-        // add gesture recogniser
+    fileprivate func defaultSetupWithViewCornerRadius(_ radius: CGFloat) {
         let recogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
         recogniser.delegate = self
         addGestureRecognizer(recogniser)
         backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         alpha = 0.9
-        self.layer.cornerRadius = 10
+        self.layer.cornerRadius = radius
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
-
-        // add tableView
-        tableView = UITableView()
-        tableView.backgroundColor = UIColor.clear
-        tableView.dataSource = self
-        tableView.delegate = self
-        addSubview(tableView)
-        updateTableViewConstraint()
     }
     
     fileprivate func addCarouselHolder() {
@@ -86,22 +77,22 @@ class DraggableView: UIView {
             cardCarousel?.snp.remakeConstraints { (make) in
                 make.left.equalTo(self)
                 make.right.equalTo(self)
-                make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+                make.top.equalTo(searchBar?.snp.bottom ?? defaultPadding).offset(defaultPadding)
                 make.height.equalTo(carouselHeight)
             }
         }
     }
     
     fileprivate func updateTableViewConstraint() {
-        tableView.snp.remakeConstraints { (make) in
+        tableView?.snp.remakeConstraints { (make) in
             if let safeCarousel = cardCarousel {
                 if safeCarousel.isHidden {
-                    make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+                    make.top.equalTo(searchBar?.snp.bottom ?? defaultPadding).offset(defaultPadding)
                 } else {
                     make.top.equalTo(safeCarousel.snp.bottom).offset(defaultPadding)
                 }
             } else {
-                make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+                make.top.equalTo(searchBar?.snp.bottom ?? defaultPadding).offset(defaultPadding)
             }
             make.left.equalTo(self)
             make.right.equalTo(self)
@@ -119,10 +110,14 @@ class DraggableView: UIView {
     fileprivate func addSearchBar() {
         let w: CGFloat = bounds.size.width - 2*defaultPadding
         searchBar = UISearchBar(frame: CGRect(x: defaultPadding, y: defaultPadding, width: w, height: searchBarHeight))
-        searchBar.delegate = self
-        searchBar.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-        addSubview(searchBar)
-        for subView in searchBar.subviews {
+        searchBar?.delegate = self
+        searchBar?.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        guard let safeSearchBar = searchBar else {
+            return
+        }
+        addSubview(safeSearchBar)
+        // remove UISearchBar background i.e clear background
+        for subView in safeSearchBar.subviews {
             for view in subView.subviews {
                 guard let searchBarBackgroundClass = NSClassFromString("UISearchBarBackground")  else {
                     return
@@ -134,11 +129,19 @@ class DraggableView: UIView {
                     imageView.removeFromSuperview()
                     return
                 }
-                
             }
         }
     }
-    // MARK: Gesture
+    
+    fileprivate func addTableView() {
+        tableView = UITableView()
+        tableView?.backgroundColor = UIColor.clear
+        tableView?.dataSource = self
+        tableView?.delegate = self
+        addSubview(tableView!)
+        updateTableViewConstraint()
+    }
+    // MARK: Gesture Action
     func didPan(_ gesture: UIPanGestureRecognizer) {
         let point = gesture.translation(in: self.superview)
         self.center = CGPoint(x: self.center.x, y: self.center.y + point.y)
@@ -154,7 +157,7 @@ class DraggableView: UIView {
     }
     // MARK: Notification
     func keyboardWillHide(_ notification: Notification) {
-        searchBar.setShowsCancelButton(false, animated: true)
+        searchBar?.setShowsCancelButton(false, animated: true)
     }
     // MARK: Public helper
     func hideCarousel() {
@@ -168,7 +171,24 @@ class DraggableView: UIView {
         updateTableViewConstraint()
         
     }
+    
+    func setupForMapWithViewConrerRadius(_ radius: CGFloat) {
+        // add top guid veiw
+        addTopGuide()
+        // add searchBar
+        addSearchBar()
+        // add gesture recogniser
+        defaultSetupWithViewCornerRadius(radius)
+    }
+    
+    func setupForCardWithViewConrerRadius(_ radius: CGFloat) {
+        // add top guid veiw
+        addTopGuide()
+        // add gesture recogniser
+        defaultSetupWithViewCornerRadius(radius)
+    }
 }
+// MARK: iCarousel
 extension DraggableView: iCarouselDataSource, iCarouselDelegate {
     func numberOfItems(in carousel: iCarousel) -> Int {
         return carouselDataSource?.count ?? 0
@@ -215,12 +235,13 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
         return value
     }
 }
+// MARK: UITableView
 extension DraggableView: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return tableViewDataSource?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -231,12 +252,14 @@ extension DraggableView: UITableViewDelegate, UITableViewDataSource {
         }
         cell?.backgroundColor = UIColor.clear
         cell?.contentView.backgroundColor = UIColor.clear
-        cell?.textLabel?.text = "\(indexPath.row).\(indexPath.section) Title"
+        if let store = tableViewDataSource?[indexPath.row] {
+            cell?.textLabel?.text = "\(store.storeTitle)"
+            cell?.detailTextLabel?.text = "\(store.storeSubtitle)"
+        }
         return cell!
-        
-        
     }
 }
+// MARK: UIGestureRecognizerDelegate
 extension DraggableView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
@@ -250,6 +273,7 @@ extension DraggableView: UIGestureRecognizerDelegate {
         
     }
 }
+// MARK: UISearchBarDelegate
 extension DraggableView: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(true, animated: true)
