@@ -17,19 +17,26 @@ enum PanState {
     case close
 }
 class ViewController: UIViewController {
-
+    
     var pane: DraggableView!
-    var paneState: PanState = .close
+    
+    var paneState: PanState = .close {
+        
+        didSet {
+            dimView.isHidden = paneState != .open
+        }
+    }
     var animation: POPSpringAnimation?
-
+    
     var keyboardHeight: CGFloat = 0
     let size = UIScreen.main.bounds.size
     let bigY = 2177.5
     
+    @IBOutlet weak var dimView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-
+        
         let draggableView = DraggableView(frame:CGRect(x: 0, y: size.height - 70, width: size.width, height: size.height))
         draggableView.delegate = self
         view.addSubview(draggableView)
@@ -40,23 +47,25 @@ class ViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillShow.rawValue), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
-        
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     func targetPoint() -> CGPoint {
         switch paneState {
         case .halfOpen:
+            pane.unhideCarousel()
             return CGPoint(x: size.width/2, y: size.height  * 1.23)
         case .open:
+            pane.hideCarousel()
             return CGPoint(x: size.width/2, y: size.height * 0.56)
         case .close:
+            pane.unhideCarousel()
             return CGPoint(x: size.width/2, y: size.height * 1.40)
-
+            
         }
     }
     
@@ -76,7 +85,7 @@ class ViewController: UIViewController {
         pane.pop_add(animation, forKey: "animation")
         
     }
-
+    
 }
 
 extension ViewController: DraggableViewDelegate {
@@ -93,7 +102,7 @@ extension ViewController: DraggableViewDelegate {
             }
         } else if paneState == .close {
             if velocity.y < 0 {
-               paneState = .halfOpen
+                paneState = .halfOpen
             }
         } else if paneState == .open {
             if velocity.y >= 0 {

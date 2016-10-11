@@ -19,19 +19,29 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="4MV-yE-Rws"/>
+                            <view hidden="YES" alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wVh-6o-o4f">
+                                <color key="backgroundColor" red="0.11776993055380713" green="0.11776993055380713" blue="0.11776993055380713" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="4MV-yE-Rws" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Z9x-Ww-BhP"/>
+                            <constraint firstAttribute="trailing" secondItem="wVh-6o-o4f" secondAttribute="trailing" id="HGY-r1-j2x"/>
+                            <constraint firstItem="4MV-yE-Rws" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="-20" id="Z9x-Ww-BhP"/>
+                            <constraint firstItem="wVh-6o-o4f" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="-20" id="aaa-Cs-c7E"/>
                             <constraint firstAttribute="trailing" secondItem="4MV-yE-Rws" secondAttribute="trailing" id="fGJ-te-dc6"/>
                             <constraint firstItem="4MV-yE-Rws" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ntQ-B9-RRj"/>
+                            <constraint firstItem="wVh-6o-o4f" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="vsR-zi-8Vk"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="4MV-yE-Rws" secondAttribute="bottom" id="wxA-mO-iQ4"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="wVh-6o-o4f" secondAttribute="bottom" id="xVO-Pt-yBW"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="dimView" destination="wVh-6o-o4f" id="fzL-xX-CSt"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-290" y="92"/>
+            <point key="canvasLocation" x="-290.39999999999998" y="91.304347826086968"/>
         </scene>
     </scenes>
 </document>

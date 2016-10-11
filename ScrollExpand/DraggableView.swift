@@ -24,7 +24,10 @@ class DraggableView: UIView {
     var tableView: UITableView!
     var cardCarousel: iCarousel! = iCarousel()
     let carouselHeight: CGFloat = 90
-    
+    let topGuideHeight: CGFloat = 5
+    let topGuideWidth: CGFloat = 40
+    let searchBarHeight: CGFloat = 44
+    let defaultPadding: CGFloat = 8
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,27 +40,11 @@ class DraggableView: UIView {
     
     func setup() {
         // add top guid veiw
-        let topGuidView = UIView(frame: CGRect(x: bounds.size.width/2.0 - 20, y: 3, width: 40, height: 5))
-        topGuidView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
-        topGuidView.layer.cornerRadius = 2.5
-        addSubview(topGuidView)
+        addTopGuide()
         
         // add searchBar
-        let h: CGFloat = 44
-        let w: CGFloat = bounds.size.width - 16
-        searchBar = UISearchBar(frame: CGRect(x: 8, y: 8, width: w, height: h))
-        searchBar.backgroundImage = nil
-        searchBar.delegate = self
-        searchBar.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-        addSubview(searchBar)
-        for subView in searchBar.subviews {
-            for view in subView.subviews {
-                if view.isKind(of: NSClassFromString("UISearchBarBackground")!) {
-                    let imageView = view as! UIImageView
-                    imageView.removeFromSuperview()
-                }
-            }
-        }
+        addSearchBar()
+        
         // add gesture recogniser
         let recogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
         recogniser.delegate = self
@@ -69,24 +56,61 @@ class DraggableView: UIView {
         // add carousel
         addCarouselHolder()
         // add tableView
-        tableView = UITableView(frame: CGRect(x: frame.origin.x, y: h + 32 + 90, width: frame.size.width, height: frame.size.height), style: .plain)
+        tableView = UITableView()
+        
         tableView.backgroundColor = UIColor.clear
         tableView.dataSource = self
         tableView.delegate = self
         addSubview(tableView)
+        tableView.snp.remakeConstraints { (make) in
+            make.top.equalTo(cardCarousel.snp.bottom).offset(defaultPadding)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
+            make.bottom.equalTo(self)
+        }
     }
     
     func addCarouselHolder() {
         cardCarousel.type = .linear
-        let h: CGFloat = 90
+        cardCarousel.isPagingEnabled = true
         cardCarousel.dataSource = self
         cardCarousel.delegate = self
         addSubview(cardCarousel)
         cardCarousel.snp.remakeConstraints { (make) in
             make.left.equalTo(self)
             make.right.equalTo(self)
-            make.top.equalTo(searchBar.snp.bottom).offset(8)
-            make.height.equalTo(h)
+            make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+            make.height.equalTo(carouselHeight)
+        }
+    }
+    
+    func addTopGuide() {
+        let topGuidView = UIView(frame: CGRect(x: bounds.size.width/2.0 - topGuideWidth/2, y: 3, width: topGuideWidth, height: topGuideHeight))
+        topGuidView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
+        topGuidView.layer.cornerRadius = 2.5
+        addSubview(topGuidView)
+    }
+    
+    func addSearchBar() {
+        let w: CGFloat = bounds.size.width - 2*defaultPadding
+        searchBar = UISearchBar(frame: CGRect(x: defaultPadding, y: defaultPadding, width: w, height: searchBarHeight))
+        searchBar.delegate = self
+        searchBar.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        addSubview(searchBar)
+        for subView in searchBar.subviews {
+            for view in subView.subviews {
+                guard let searchBarBackgroundClass = NSClassFromString("UISearchBarBackground")  else {
+                    return
+                }
+                if view.isKind(of: searchBarBackgroundClass) {
+                    guard let imageView = view as? UIImageView else {
+                        return
+                    }
+                    imageView.removeFromSuperview()
+                    return
+                }
+                
+            }
         }
     }
     
@@ -101,11 +125,33 @@ class DraggableView: UIView {
         } else if gesture.state == .began {
             delegate?.draggableViewBeganDragging(self)
         }
-
+        
     }
     
     func keyboardWillHide(_ notification: Notification) {
         searchBar.setShowsCancelButton(false, animated: true)
+    }
+    
+    func hideCarousel() {
+        cardCarousel.isHidden = true
+        tableView.snp.remakeConstraints { (make) in
+            make.top.equalTo(searchBar.snp.bottom).offset(defaultPadding)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
+            make.bottom.equalTo(self)
+        }
+        
+    }
+    
+    func unhideCarousel() {
+        cardCarousel.isHidden = false
+        tableView.snp.remakeConstraints { (make) in
+            make.top.equalTo(cardCarousel.snp.bottom).offset(defaultPadding)
+            make.left.equalTo(self)
+            make.right.equalTo(self)
+            make.bottom.equalTo(self)
+        }
+        
     }
 }
 extension DraggableView: iCarouselDataSource, iCarouselDelegate {
@@ -118,12 +164,16 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
         var innerCardHolderView: MapCardView
         
         //create new view if no view is available for recycling
-        if (view == nil) {
+        if let safeView = view {
+            //get a reference to the label in the recycled view
+            itemView = safeView
+            innerCardHolderView = itemView.viewWithTag(1) as! MapCardView
+        } else {
             //don't do anything specific to the index within
             //this `if (view == nil) {...}` statement because the view will be
             //recycled and used with other index values later
             let maxWidth = bounds.size.width-44
-            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth-44, height:90))
+            itemView = UIView(frame:CGRect(x:0, y:0, width:maxWidth-44, height:carouselHeight))
             
             innerCardHolderView = MapCardView.instanceFromNib()
             innerCardHolderView.tag = 1
@@ -131,10 +181,6 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
             innerCardHolderView.snp.makeConstraints { (make) in
                 make.edges.equalTo(itemView)
             }
-        } else {
-            //get a reference to the label in the recycled view
-            itemView = view!
-            innerCardHolderView = itemView.viewWithTag(1) as! MapCardView
         }
         
         //set item label
@@ -143,8 +189,6 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
         //you'll get weird issues with carousel item content appearing
         //in the wrong place in the carousel
         
-        //let anItem = items[index]
-        //innerCardHolderView.setupUI(anItem.cornerRadius, barcode: anItem.barcode, loyaltyPoints: anItem.loyaltyPoints)
         innerCardHolderView.setupUI()
         return itemView
     }
@@ -154,14 +198,6 @@ extension DraggableView: iCarouselDataSource, iCarouselDelegate {
             return value * 1.1
         }
         return value
-    }
-    
-    func carousel(_ carousel: iCarousel, didSelectItemAt index: Int) {
-        //        let anItem = items[index]
-        //        let aCard = LoyaltyCardView.instanceFromNib()
-        //        aCard.setupUI(anItem.cornerRadius, barcode: anItem.barcode, loyaltyPoints: anItem.loyaltyPoints)
-        //        selectedloyaltyCard = aCard
-        //        performSegue(withIdentifier: editCardSegue, sender: self)
     }
 }
 extension DraggableView: UITableViewDelegate, UITableViewDataSource {
@@ -195,7 +231,7 @@ extension DraggableView: UIGestureRecognizerDelegate {
             return fabs(velocity.y) > fabs(velocity.x)
         }
         return true
-
+        
     }
 }
 extension DraggableView: UISearchBarDelegate {
