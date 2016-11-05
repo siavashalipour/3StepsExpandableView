@@ -31,7 +31,8 @@ class ViewController: UIViewController {
     var keyboardHeight: CGFloat = 0
     let size = UIScreen.main.bounds.size
     let bigY = 2177.5
-    
+    let vc = UIVisualEffectView(effect: UIBlurEffect.init(style: .light))
+
     @IBOutlet weak var dimView: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,8 +41,14 @@ class ViewController: UIViewController {
         let draggableView = DraggableView(frame:CGRect(x: 0, y: size.height - 60, width: size.width, height: size.height))
         draggableView.delegate = self
         draggableView.setupForMapWithViewCornerRadius(10)
-        view.addSubview(draggableView)
-        pane = draggableView
+        view.addSubview(vc)
+        vc.frame = draggableView.frame
+        vc.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1).withAlphaComponent(0.9)
+        vc.contentView.addSubview(draggableView)
+        draggableView.snp.makeConstraints { (make) in
+            make.edges.equalTo(vc.contentView)
+        }
+        pane = vc.contentView.subviews.last! as! DraggableView
         var stores: Array<MapStore> = []
         for i in 0..<20 {
             let store = MapStore(storeTitle: "Title \(i)", storeSubtitle: "Subtitle \(i)")
@@ -83,13 +90,13 @@ class ViewController: UIViewController {
     }
     
     func animatePaneWithInitialVelocity(_ initialVelocity: CGPoint) {
-        pane.pop_removeAllAnimations()
+        vc.pop_removeAllAnimations()
         animation = POPSpringAnimation(propertyNamed: kPOPViewCenter)
         animation?.velocity = NSValue.init(cgPoint: initialVelocity)
         animation?.toValue = NSValue.init(cgPoint: targetPoint())
         animation?.springSpeed = 8
         animation?.springBounciness = 4
-        pane.pop_add(animation, forKey: "animation")
+        vc.pop_add(animation, forKey: "animation")
         
     }
     

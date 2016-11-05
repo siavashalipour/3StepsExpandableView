@@ -61,9 +61,10 @@ class DraggableView: UIView {
     // MARK: Private methods
     fileprivate func defaultSetupWithViewCornerRadius(_ radius: CGFloat) {
         let recogniser = UIPanGestureRecognizer(target: self, action: #selector(self.didPan(_:)))
+
         recogniser.delegate = self
         addGestureRecognizer(recogniser)
-        backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
         alpha = 0.9
         self.layer.cornerRadius = radius
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: NSNotification.Name(rawValue: Notification.Name.UIKeyboardWillHide.rawValue), object: nil)
@@ -195,6 +196,7 @@ class DraggableView: UIView {
     }
     
     func setupForMapWithViewCornerRadius(_ radius: CGFloat) {
+
         // add top guid veiw
         addTopGuide()
         // add searchBar
